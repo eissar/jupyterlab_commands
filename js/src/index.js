@@ -97,7 +97,6 @@ async function activate(app, docManager, palette, browser) {
 
   // eslint-disable-next-line no-console
   console.log("JupyterLab extension jupyterlab_commands is activated!");
-  i;
 
   {
     const cmd = {
