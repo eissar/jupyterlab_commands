@@ -14,108 +14,49 @@ import "../style/index.css";
 
 const CMD_GROUP = "Custom Commands";
 
-async function activate(app, docManager, palette, browser) {
-  // grab templates from serverextension
-  const res = await request("get", `${PageConfig.getBaseUrl()}commands/get`);
-  if (res.ok) {
-    const commands = res.json();
-    commands.map((command) => {
-      app.commands.addCommand(command, {
-        execute: async () => {
-          const result = await showDialog({
-            buttons: [Dialog.cancelButton(), Dialog.okButton({ label: "Ok" })],
-            title: `Execute ${command}?`,
-          });
-
-          if (result.button.label === "Cancel") {
-            return;
-          }
-
-          let ok = false;
-          let body = "An unexpected error occurred";
-
-          try {
-            // Try to execute command, and show dialog with info when done
-            const folder = browser.tracker.currentWidget.model.path || "";
-
-            if (!app.shell.currentWidget) {
-              // need a current widget
-              return;
-            }
-
-            const context = docManager.contextForWidget(
-              app.shell.currentWidget,
-            );
-
-            let path = "";
-            let model = {};
-            if (context) {
-              path = context.path;
-              model = context.model.toJSON();
-            }
-
-            // eslint-disable-next-line no-shadow
-            const res = await request(
-              "post",
-              `${PageConfig.getBaseUrl()}commands/run?command=${encodeURI(command)}`,
-              {},
-              JSON.stringify({ folder, path, model }),
-            );
-            if (res.ok) {
-              const resp = res.json();
-              body = "No output returned.";
-              if (resp) {
-                body = resp.body;
-              }
-              ok = true;
-            }
-          } catch (e) {
-            body = e.toString();
-          }
-          if (ok) {
-            await showDialog({
-              body,
-              buttons: [Dialog.okButton({ label: "Ok" })],
-              title: `Execute ${command} succeeded`,
-            });
-          } else {
-            await showDialog({
-              buttons: [Dialog.okButton({ label: "Ok" })],
-              title: `Execute ${command} failed`,
-            });
-          }
-        },
-        isEnabled: () => true,
-        label: command,
-      });
-
-      palette.addItem({ command, category: CMD_GROUP });
-
-      return command;
-    });
-  }
-
+async function activate(app, _docManager, palette, _browser) {
   // eslint-disable-next-line no-console
   console.log("JupyterLab extension jupyterlab_commands is activated!");
 
-  {
-    const commandId = "custom:show-test-dialog";
+  // {
+  //   const commandId = "custom:show-test-dialog";
+  //
+  //   jupyterapp.commands.addCommand(commandId, {
+  //     label: "Show a Custom Test Dialog",
+  //     isEnabled: () => true,
+  //     execute: async () => {
+  //       const { showDialog, Dialog } = await import("@jupyterlab/apputils");
+  //       await showDialog({
+  //         title: "Execute Succeeded",
+  //         body: "The custom command ran successfully!",
+  //         buttons: [Dialog.okButton({ label: "Awesome!" })],
+  //       });
+  //     },
+  //   });
+  //   palette.addItem({ command: commandId, category: CMD_GROUP });
+  //
+  //   console.log(`Command '${commandId}' was registered.`);
+  // }
 
-    jupyterapp.commands.addCommand(commandId, {
-      label: "Show a Custom Test Dialog",
-      isEnabled: () => true,
-      execute: async () => {
-        const { showDialog, Dialog } = await import("@jupyterlab/apputils");
-        await showDialog({
-          title: "Execute Succeeded",
-          body: "The custom command ran successfully!",
-          buttons: [Dialog.okButton({ label: "Awesome!" })],
-        });
+  {
+    let commandID = "my-super-cool-toggle:toggle";
+    let toggle = true; // The current toggle state
+    app.commands.addCommand(commandID, {
+      label: "My Super Cool Toggle",
+      isToggled: function () {
+        return toggle;
+      },
+      execute: function () {
+        // Toggle the state
+        toggle = !toggle;
       },
     });
-    palette.addItem({ command: commandId, category: CMD_GROUP });
 
-    console.log(`Command '${commandId}' was registered.`);
+    palette.addItem({
+      command: commandID,
+      // Sort to the top for convenience
+      category: "AAA",
+    });
   }
 
   {
