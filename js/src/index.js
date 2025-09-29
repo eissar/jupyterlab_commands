@@ -99,17 +99,13 @@ async function activate(app, docManager, palette, browser) {
   console.log("JupyterLab extension jupyterlab_commands is activated!");
 
   {
-    // 1. Define the unique ID for the command
     const commandId = "custom:show-test-dialog";
 
-    // 2. Call addCommand with the ID and the options object
     jupyterapp.commands.addCommand(commandId, {
       label: "Show a Custom Test Dialog",
       isEnabled: () => true,
       execute: async () => {
-        // You need to import showDialog first
         const { showDialog, Dialog } = await import("@jupyterlab/apputils");
-
         await showDialog({
           title: "Execute Succeeded",
           body: "The custom command ran successfully!",
@@ -117,7 +113,7 @@ async function activate(app, docManager, palette, browser) {
         });
       },
     });
-    palette.addItem({ commandId, category: "idk" });
+    palette.addItem({ command: commandId, category: CMD_GROUP });
 
     console.log(`Command '${commandId}' was registered.`);
   }
@@ -125,6 +121,7 @@ async function activate(app, docManager, palette, browser) {
   {
     console.log("globalThis.jupyterapp", globalThis.jupyterapp);
     console.log("app", app);
+    console.log("palette", palette);
   }
 }
 
