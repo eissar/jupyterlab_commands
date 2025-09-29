@@ -1,14 +1,14 @@
-import {Dialog, ICommandPalette, showDialog} from "@jupyterlab/apputils";
+import { Dialog, ICommandPalette, showDialog } from "@jupyterlab/apputils";
 
-import {PageConfig} from "@jupyterlab/coreutils";
+import { PageConfig } from "@jupyterlab/coreutils";
 
-import {IDocumentManager} from "@jupyterlab/docmanager";
+import { IDocumentManager } from "@jupyterlab/docmanager";
 
-import {IFileBrowserFactory} from "@jupyterlab/filebrowser";
+import { IFileBrowserFactory } from "@jupyterlab/filebrowser";
 
-import {ILauncher} from "@jupyterlab/launcher";
+import { ILauncher } from "@jupyterlab/launcher";
 
-import {request} from "requests-helper";
+import { request } from "requests-helper";
 
 import "../style/index.css";
 
@@ -21,7 +21,7 @@ async function activate(app, docManager, palette, browser) {
       app.commands.addCommand(command, {
         execute: async () => {
           const result = await showDialog({
-            buttons: [Dialog.cancelButton(), Dialog.okButton({label: "Ok"})],
+            buttons: [Dialog.cancelButton(), Dialog.okButton({ label: "Ok" })],
             title: `Execute ${command}?`,
           });
 
@@ -41,7 +41,9 @@ async function activate(app, docManager, palette, browser) {
               return;
             }
 
-            const context = docManager.contextForWidget(app.shell.currentWidget);
+            const context = docManager.contextForWidget(
+              app.shell.currentWidget,
+            );
 
             let path = "";
             let model = {};
@@ -51,7 +53,12 @@ async function activate(app, docManager, palette, browser) {
             }
 
             // eslint-disable-next-line no-shadow
-            const res = await request("post", `${PageConfig.getBaseUrl()}commands/run?command=${encodeURI(command)}`, {}, JSON.stringify({folder, path, model}));
+            const res = await request(
+              "post",
+              `${PageConfig.getBaseUrl()}commands/run?command=${encodeURI(command)}`,
+              {},
+              JSON.stringify({ folder, path, model }),
+            );
             if (res.ok) {
               const resp = res.json();
               body = "No output returned.";
@@ -66,12 +73,12 @@ async function activate(app, docManager, palette, browser) {
           if (ok) {
             await showDialog({
               body,
-              buttons: [Dialog.okButton({label: "Ok"})],
+              buttons: [Dialog.okButton({ label: "Ok" })],
               title: `Execute ${command} succeeded`,
             });
           } else {
             await showDialog({
-              buttons: [Dialog.okButton({label: "Ok"})],
+              buttons: [Dialog.okButton({ label: "Ok" })],
               title: `Execute ${command} failed`,
             });
           }
@@ -80,7 +87,7 @@ async function activate(app, docManager, palette, browser) {
         label: command,
       });
 
-      palette.addItem({command, category: "Custom Commands"});
+      palette.addItem({ command, category: "Custom Commands" });
 
       return command;
     });
@@ -88,6 +95,7 @@ async function activate(app, docManager, palette, browser) {
 
   // eslint-disable-next-line no-console
   console.log("JupyterLab extension jupyterlab_commands is activated!");
+  console.log("a new message from JupyterLab extension jupyterlab_commands");
 }
 
 const extension = {
@@ -99,4 +107,4 @@ const extension = {
 };
 
 export default extension;
-export {activate as _activate};
+export { activate as _activate };
