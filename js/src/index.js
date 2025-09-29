@@ -12,6 +12,8 @@ import { request } from "requests-helper";
 
 import "../style/index.css";
 
+CMD_GROUP = "Custom Commands";
+
 async function activate(app, docManager, palette, browser) {
   // grab templates from serverextension
   const res = await request("get", `${PageConfig.getBaseUrl()}commands/get`);
@@ -87,7 +89,7 @@ async function activate(app, docManager, palette, browser) {
         label: command,
       });
 
-      palette.addItem({ command, category: "Custom Commands" });
+      palette.addItem({ command, category: CMD_GROUP });
 
       return command;
     });
@@ -95,6 +97,19 @@ async function activate(app, docManager, palette, browser) {
 
   // eslint-disable-next-line no-console
   console.log("JupyterLab extension jupyterlab_commands is activated!");
+  i;
+
+  {
+    const cmd = {
+      execute: () => {
+        alert("testing");
+      },
+      isEnabled: () => true,
+      label: "TEST: ALERT IT",
+    };
+    app.commands.addCommand({ cmd, category: CMD_GROUP });
+  }
+
   console.log("a new message from JupyterLab extension jupyterlab_commands");
 }
 
