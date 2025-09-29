@@ -12,7 +12,7 @@ import { request } from "requests-helper";
 
 import "../style/index.css";
 
-CMD_GROUP = "Custom Commands";
+const CMD_GROUP = "Custom Commands";
 
 async function activate(app, docManager, palette, browser) {
   // grab templates from serverextension
