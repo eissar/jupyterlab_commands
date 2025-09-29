@@ -1,6 +1,8 @@
+working
+
 # jupyterlab_commands
 
-Support for arbitrary python commands in the command palette. 
+Support for arbitrary python commands in the command palette.
 
 [![Build Status](https://github.com/timkpaine/jupyterlab_commands/workflows/Build%20Status/badge.svg?branch=main)](https://github.com/timkpaine/jupyterlab_commands/actions?query=workflow%3A%22Build+Status%22)
 [![codecov](https://codecov.io/gh/timkpaine/jupyterlab_commands/branch/main/graph/badge.svg?token=wWAQ6QqP6M)](https://codecov.io/gh/timkpaine/jupyterlab_commands)
@@ -24,7 +26,7 @@ jupyter labextension install jupyterlab_commands
 jupyter serverextension enable --py jupyterlab_commands
 ```
 
-## Example 
+## Example
 
 #### jupyter_lab_config.py
 
