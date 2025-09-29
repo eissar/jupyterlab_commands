@@ -118,8 +118,11 @@ async function activate(app, docManager, palette, browser) {
   }
 
   {
-    console.log("globalThis.jupyterapp", globalThis.jupyterapp);
-    console.log("app", app);
+    console.log(app);
+  }
+
+  {
+    console.log(globalThis.jupyterapp);
   }
 }
 
