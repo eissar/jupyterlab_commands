@@ -21,10 +21,11 @@ class MyKernelExtension {
 
   setupKernelHooks() {
     // Hook into kernel creation
-    JupyterFrontEnd.getInstance().serviceManager.kernelspecs.kernelSpecsChanged.connect(
-      () => {
-        this.patchKernels();
-      },
+        console.log(JupyterFrontEnd)
+    // JupyterFrontEnd.getInstance().serviceManager.kernelspecs.kernelSpecsChanged.connect(
+    //   () => {
+    //     this.patchKernels();
+    //   },
     );
   }
 
