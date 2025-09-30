@@ -12,9 +12,63 @@ import { request } from "requests-helper";
 
 import "../style/index.css";
 
+import { IKernel, IKernelConnection } from "@jupyterlite/kernel";
+// In your extension
+class MyKernelExtension {
+  constructor() {
+    this.setupKernelHooks();
+  }
+
+  setupKernelHooks() {
+    // Hook into kernel creation
+    JupyterFrontEnd.getInstance().serviceManager.kernelspecs.kernelSpecsChanged.connect(
+      () => {
+        this.patchKernels();
+      },
+    );
+  }
+
+  async patchKernels() {
+    const kernelManager = JupyterFrontEnd.getInstance().serviceManager.kernels;
+
+    // Override kernel creation
+    const originalStartNew = kernelManager.startNew.bind(kernelManager);
+    kernelManager.startNew = async (options) => {
+      const kernel = await originalStartNew(options);
+      this.patchKernel(kernel);
+      return kernel;
+    };
+  }
+
+  patchKernel(kernel) {
+    // Hook into kernel configuration
+    const originalConfigure = kernel._configure?.bind(kernel);
+
+    if (originalConfigure) {
+      kernel._configure = async (settings) => {
+        console.log("Intercepting kernel configuration", settings);
+
+        // Your custom logic here
+        await this.customConfiguration(kernel, settings);
+
+        // Call original
+        return originalConfigure(settings);
+      };
+    }
+  }
+
+  async customConfiguration(kernel, settings) {
+    // Add your custom configuration
+    // Example: Inject environment variables, modify kernel args, etc.
+    console.log("Custom kernel configuration for:", kernel.name);
+  }
+}
+
 const CMD_GROUP = "Custom Commands";
 
 async function activate(app, _docManager, palette, _browser) {
+  new MyKernelExtension();
+
   // eslint-disable-next-line no-console
   console.log("JupyterLab extension jupyterlab_commands is activated!");
 
