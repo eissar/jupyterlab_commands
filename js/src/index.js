@@ -1,4 +1,5 @@
 import { Dialog, ICommandPalette, showDialog } from "@jupyterlab/apputils";
+import { JupyterFrontEnd } from "@jupyterlab/application";
 
 import { PageConfig } from "@jupyterlab/coreutils";
 
@@ -12,7 +13,6 @@ import { request } from "requests-helper";
 
 import "../style/index.css";
 
-import { IKernel, IKernelConnection } from "@jupyterlite/kernel";
 // In your extension
 class MyKernelExtension {
   constructor() {
