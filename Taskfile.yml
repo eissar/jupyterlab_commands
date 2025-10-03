@@ -1,0 +1,59 @@
+# https://taskfile.dev
+
+version: '3'
+
+vars:
+  GREETING: Hello, World!
+  PORT: 8888
+  # SHELL: '{{if eq .OS "Windows_NT"}}pwsh{{end}}'
+
+tasks:
+  do: # just do it
+    deps: [stop, run, test]
+
+  stop:
+    desc: Stop processes running on port {{.PORT}}
+    cmds:
+      - pwsh -c Write-Host "[LOG] Force stopping any processes running on {{.PORT}}..."
+      - pwsh -c 'Get-NetTCPConnection | where { $_.LocalPort -eq {{.PORT}} } | Select-Object -Expand OwningProcess -Unique | xargs kill'
+
+  list:
+    desc: List all available tasks
+    cmds:
+      - task -l
+
+  default:
+    desc: Default task (shows help)
+    cmds:
+      - task --list
+
+  create-env:
+    desc: Create micromamba environment
+    cmds:
+      - pwsh -c wsl micromamba.exe create -n jl -f ./build-environment.without-ext.yml -y
+    # sources: Task will only run if build-environment.without-ext.yml changes
+    sources:
+      - build-environment.without-ext.yml
+
+  create-ext:
+    cmds:
+      - wsl micromamba.exe run -n jl uv pip install .
+    sources:
+      - js/*
+
+
+  # rebuilds and runs the server
+  run:
+    desc: run the server
+    deps: [create-env,create-ext]
+    cmds:
+      - pwsh -c 'Write-Host "[WARN] prefixing commands with wsl for windows environment"'
+      - pwsh -c '$a = Get-NetTCPConnection | where { $_.LocalPort -eq 8888 } | select -Expand OwningProcess -Unique; if ([bool]$a) { write-host (Get-NetTCPConnection | where { $_.LocalPort -eq 8888 }) Throw "already running on port :8888:`n`t$a" }'
+
+      - wsl micromamba.exe run -n jl uv pip install .
+      - pwsh -File ./start-server.ps1
+      # - pwsh -File ./Test-ConsoleErrors.ps1
+
+  test:
+    cmds:
+      - pwsh -File ./Test-ConsoleErrors.ps1

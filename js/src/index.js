@@ -20,8 +20,9 @@ class MyKernelExtension {
   }
 
   setupKernelHooks() {
-    // Hook into kernel creation
-    console.log(JupyterFrontEnd);
+    // Hook into kernel--NotebookApp.ip='localhost' --NotebookApp.token='' --NotebookApp.password='' creation
+    // const fe = /** @type JupyterFrontEnd */ JupyterFrontEnd;
+    // console.log("listPlugins", fe.listPlugins());
     // JupyterFrontEnd.getInstance().serviceManager.kernelspecs.kernelSpecsChanged.connect(
     //   () => {
     //     this.patchKernels();
