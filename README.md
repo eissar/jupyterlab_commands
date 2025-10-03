@@ -1,5 +1,9 @@
 working
 
+micromamba.exe create -n jl -f .\build-environment.without-ext.yml -y
+wsl micromamba.exe run -n jl pip install -e .
+wsl micromamba.exe run -n jl jupyter server
+
 # jupyterlab_commands
 
 Support for arbitrary python commands in the command palette.
