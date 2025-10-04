@@ -16,13 +16,18 @@ import "../style/index.css";
 // In your extension
 class MyKernelExtension {
   constructor() {
+    console.log(
+      "[JLC] kmgr",
+      Object.keys(JupyterFrontEnd), // instance or class?
+      // JupyterFrontEnd.getInstance().serviceManager.kernels,
+    );
     this.setupKernelHooks();
   }
 
   setupKernelHooks() {
-    // Hook into kernel--NotebookApp.ip='localhost' --NotebookApp.token='' --NotebookApp.password='' creation
+    this.patchKernels();
     // const fe = /** @type JupyterFrontEnd */ JupyterFrontEnd;
-    // console.log("listPlugins", fe.listPlugins());
+    // console.log("[JLC] listPlugins", fe.listPlugins());
     // JupyterFrontEnd.getInstance().serviceManager.kernelspecs.kernelSpecsChanged.connect(
     //   () => {
     //     this.patchKernels();
@@ -32,6 +37,7 @@ class MyKernelExtension {
 
   async patchKernels() {
     const kernelManager = JupyterFrontEnd.getInstance().serviceManager.kernels;
+    console.log("[JLC] kernelManager", kernelManager);
 
     // Override kernel creation
     const originalStartNew = kernelManager.startNew.bind(kernelManager);
@@ -48,12 +54,12 @@ class MyKernelExtension {
 
     if (originalConfigure) {
       kernel._configure = async (settings) => {
-        console.log("Intercepting kernel configuration", settings);
+        console.log("[JLC] Intercepting kernel configuration", settings);
 
         // Your custom logic here
         await this.customConfiguration(kernel, settings);
 
-        // Call original
+        // Call original a
         return originalConfigure(settings);
       };
     }
@@ -62,17 +68,17 @@ class MyKernelExtension {
   async customConfiguration(kernel, settings) {
     // Add your custom configuration
     // Example: Inject environment variables, modify kernel args, etc.
-    console.log("Custom kernel configuration for:", kernel.name);
+    console.log("[JLC] Custom kernel configuration for:", kernel.name);
   }
 }
 
 const CMD_GROUP = "Custom Commands";
 
 async function activate(app, _docManager, palette, _browser) {
+  console.log("[JLC] JupyterLab extension jupyterlab_commands is activated!");
   new MyKernelExtension();
 
   // eslint-disable-next-line no-console
-  console.log("JupyterLab extension jupyterlab_commands is activated!");
 
   // {
   //   const commandId = "custom:show-test-dialog";
@@ -91,14 +97,14 @@ async function activate(app, _docManager, palette, _browser) {
   //   });
   //   palette.addItem({ command: commandId, category: CMD_GROUP });
   //
-  //   console.log(`Command '${commandId}' was registered.`);
+  //   console.log(`[JLC] Command '${commandId}' was registered.`);
   // }
 
   {
     let commandID = "my-super-cool-toggle:toggle";
     let toggle = true; // The current toggle state
     app.commands.addCommand(commandID, {
-      label: "My Super Cool Toggle",
+      label: "toggle button",
       isToggled: function () {
         return toggle;
       },
@@ -116,9 +122,9 @@ async function activate(app, _docManager, palette, _browser) {
   }
 
   {
-    console.log("globalThis.jupyterapp", globalThis.jupyterapp);
-    console.log("app", app);
-    console.log("palette", palette);
+    console.log("[JLC] globalThis.jupyterapp", globalThis.jupyterapp);
+    console.log("[JLC] app", app);
+    console.log("[JLC] palette", palette);
   }
 }
 
