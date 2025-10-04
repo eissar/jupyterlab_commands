@@ -1,8 +1,8 @@
 param($Port = 8888)
 
-$job = Start-Job -Name "JupyterServer_$Port" -ScriptBlock {
-    micromamba.exe run -n jl jupyter server --NotebookApp.ip='localhost' --NotebookApp.token='' --NotebookApp.password='' --NotebookApp.port=8888
-}
+$process = Start-Process -FilePath "micromamba.exe" `
+    -ArgumentList "run", "-n", "jl", "jupyter", "server", "--NotebookApp.ip='localhost'", "--NotebookApp.token=''", "--NotebookApp.password=''", "--NotebookApp.port=$Port" `
+    -NoNewWindow -PassThru
 
 $timeout = 120
 $startTime = Get-Date
@@ -17,31 +17,24 @@ while (((Get-Date) - $startTime).TotalSeconds -lt $timeout) {
     Write-Progress -Activity "Starting Jupyter Server" -Status "Polling server... (${elapsed}s elapsed)" -PercentComplete $percentComplete -SecondsRemaining ($timeout - $elapsed)
 
     try {
-        $response = Invoke-WebRequest -Uri "http://localhost:8888" -Method Get -TimeoutSec 1 -ErrorAction Stop
+        $response = Invoke-WebRequest -Uri "http://localhost:$Port" -Method Get -TimeoutSec 1 -ErrorAction Stop
         if ($response.StatusCode -eq 200) {
             $serverAvailable = $true
             break
         }
     }
-    catch {
-        # Server not ready yet, continue polling
-    }
-
+    catch {}
     Start-Sleep -Seconds 1
 }
 
 Write-Progress -Activity "Starting Jupyter Server on port $Port" -Completed
 
 if (-not $serverAvailable) {
-    Stop-Job $job -ErrorAction SilentlyContinue
-    Remove-Job $job -ErrorAction SilentlyContinue
+    $process | Stop-Process -Force -ErrorAction SilentlyContinue
     throw "Jupyter server unavailable after $timeout seconds"
 }
-
-Write-Host "Jupyter server is running on http://localhost:$Port"
-# Add logging for job status
-Write-Host "Started Jupyter server job with ID: $($job.Id)"
 
 # Add success logging with timestamp
 $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
 Write-Host "[$timestamp] Jupyter server is running on http://localhost:$Port" -ForegroundColor Green
+Write-Host "Jupyter server process ID: $($process.Id)"

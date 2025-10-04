@@ -30,36 +30,24 @@ tasks:
   create-env:
     desc: Create micromamba environment
     cmds:
+      # - pwsh -c 'try { gi ./Taskfile.yml } catch { throw "not in project root" }
+      - pwsh -c 'Remove-Item -Recurse -Force ./jupyterlab_commands/labextension/'
       - pwsh -c wsl micromamba.exe create -n jl -f ./build-environment.without-ext.yml -y
+      - pwsh -c 'wsl micromamba.exe run -n jl uv pip install . --force-reinstall'
     # sources: Task will only run if build-environment.without-ext.yml changes
     sources:
       - build-environment.without-ext.yml
-
-  create-ext:
-    desc: build extension
-    cmds:
-      - pwsh -c Write-Host "building extension"
-      - pwsh -c 'wsl micromamba.exe run -n jl uv pip install . --reinstall'
-    sources:
       - 'js/src/**'
+
 
   # rebuilds and runs the server
   run:
     desc: run the server (foreground - blocks)
-    deps: [stop, create-env, create-ext]
+    deps: [stop, create-env]
     cmds:
       - pwsh -c 'Write-Host "[WARN] prefixing commands with wsl for windows environment"'
-      - pwsh -File ./start-server.ps1 -Port {{.PORT}}
-      - pwsh -c 'start-sleep -seconds 5'
+      - pwsh -File ./start-server.ps1
       # - pwsh -File ./Test-ConsoleErrors.ps1
-
-  run-background:
-    desc: Run server in background
-    deps: [stop, create-env, create-ext]
-    cmds:
-      - pwsh -c 'Write-Host "[WARN] prefixing commands with wsl for windows environment"'
-      - pwsh -File ./start-server.ps1 -Port {{.PORT}}
-      - pwsh -c 'Start-Sleep -Seconds 5'
 
   test:
     cmds:
